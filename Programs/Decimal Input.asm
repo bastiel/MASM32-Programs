@@ -125,13 +125,14 @@ push ecx
 mov esi, 0
 mov ecx, ebx 
 
+; save dec location 1
+push eax 
+
 cmp eax, ebx 
 je print_up_to
 cmp eax, 0
 je print_up_to
 
-; save dec location 1
-push eax 
 ; move dec location to ecx 
 mov ecx, eax 
 
