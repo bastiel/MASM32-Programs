@@ -3,7 +3,7 @@ INCLUDE Irvine32.inc
 newline TEXTEQU <0Ah, 0Dh>
 move EQU mov
 jump EQU jmp
-CLEAREAX TEXTEQU <move ebx, 0>
+CLEAREAX TEXTEQU <move ebx, 0> 
 CLEAREBX TEXTEQU <move ebx, 0>
 CLEARECX TEXTEQU <move ecx, 0>
 CLEAREDX TEXTEQU <move edx, 0>
