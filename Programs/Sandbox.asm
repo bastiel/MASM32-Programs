@@ -21,6 +21,8 @@ msg_greet byte "Hello. Welcome to my assembly sandbox.", newline, 0h
 
 .code
 main PROC
+
+COMMENT @
 LOCAL menuInput : byte
 
 starthere :
@@ -29,6 +31,11 @@ mov edx, 0
 mov edx, offset msg_greet 
 call writeString 
 call waitMs
+@
+
+
+
+
 
 ret
 
