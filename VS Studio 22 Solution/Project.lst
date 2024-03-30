@@ -1,14 +1,11 @@
-Microsoft (R) Macro Assembler Version 14.39.33521.0	    03/25/24 17:22:41
-..\Programs\PA5_Nghi_Vu.asm				     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.39.33521.0	    03/29/24 23:00:21
+PA4_Nghi_Vu.as						     Page 1 - 1
 
 
-				COMMENT @
-				TITLE: PA5_Nghi_Vu.asm
-				;// Name: Nghi Vu
-				;// Description: MASM32 program that checks if a user string input is a palindrome
-				@
+				TITLE PA4_Nghi_Vu.asm
+				; Nghi Vu
 
-				INCLUDE irvine32.inc 
+				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
 			      C 
 			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
@@ -27,123 +24,273 @@ Microsoft (R) Macro Assembler Version 14.39.33521.0	    03/25/24 17:22:41
 			      C .LIST
 			      C 
 
-				; list of function declarations 
-				menuScreen PROTO; displays menu
-
-
-
-				; useful symbols 
  = 0Ah, 0Dh			newline TEXTEQU <0Ah, 0Dh>
  = mov				move EQU mov
  = jmp				jump EQU jmp
 
+
+
+				UserInput PROTO 
+				GenerateString PROTO
+				clearStr PROTO
+				HowMany PROTO
+				GenerateCapital PROTO
+				processInput PROTO
+				nline PROTO, s:byte
+				printStr PROTO
+
+
  00000000			.data
+ 00000000  000015B3 [			listOfStr DWORD 5555 DUP(?)  
+	    00000000
+	   ]
 
  00000000			.code
-				; //////////////////// main PROCEDURE START ///////////////////
+				;#region main
  00000000			main PROC
-				; LOCAL menuInput : byte
+ 00000000  E8 00000000 E		call Randomize 
+ 00000005				start: 
+ 00000005  BE 00000000			mov esi, 0
+ 0000000A  B9 00000000			mov ecx, 0
+ 0000000F  BE 00000000 R		mov esi, offset listOfStr 
+ 00000014  B9 000000FF			mov ecx, 255
+ 00000019  E8 000000E1			call clearStr 
+ 0000001E  B8 00000000			mov eax, 0
+ 00000023  BB 00000000			mov ebx, 0
+ 00000028  B9 00000000			mov ecx, 0
+ 0000002D  BA 00000000			mov edx, 0
+ 00000032  BE 00000000			mov esi, 0
+ 00000037  BF 00000000			mov edi, 0
 
- 00000000			starthere :
- 00000000  E8 00000000 E	call clrscr
- 00000005  E8 00000007		call menuScreen 
+ 0000003C  E8 00000018			call UserInput
+ 00000041  BE 00000000 R		mov esi, offset listofstr
+ 00000046  E8 00000059			call generatestring
+ 0000004B  BE 00000000 R		mov esi, offset listofstr 
+					;call printStr
 
+ 00000050  EB B3			jmp start 
 
-				exit
- 0000000A  6A 00	   *	    push   +000000000h
- 0000000C  E8 00000000 E   *	    call   ExitProcess
+					exit
+ 00000052  6A 00	   *	    push   +000000000h
+ 00000054  E8 00000000 E   *	    call   ExitProcess
+ 00000059			main ENDP
+				;#endregion
 
- 00000011			main ENDP
+				;#region UserInput
+ 00000059			UserInput PROC 
 
-
-				; //////////////////// MENU PROCEDURE START ///////////////////
-
- 00000011			menuScreen PROC
-
- 00000000			.data
- 00000000 20 20 4D 65 6E	menuPrompt byte "  Menu", newline, 
-	   75 0A 0D 3D 3D
-	   3D 3D 3D 3D 3D
-	   3D 0A 0D 31 2E
-	   20 45 6E 74 65
-	   72 20 73 74 72
-	   69 6E 67 0A 0D
-	   32 2E 20 43 6F
-	   6E 76 65 72 74
-	   20 73 74 72 69
-	   6E 67 20 74 6F
-	   20 61 6C 6C 20
-	   6C 6F 77 65 72
-	   63 61 73 65 0A
-	   0D 33 2E 20 52
-	   65 6D 6F 76 65
-	   20 61 6C 6C 20
-	   6E 6F 6E 2D 6C
-	   65 74 74 65 72
-	   20 63 68 61 72
-	   61 63 74 65 72
-	   73 0A 0D 34 2E
-	   20 43 68 65 63
-	   6B 20 69 66 20
-	   73 74 72 69 6E
-	   67 20 69 73 20
-	   61 20 70 61 6C
-	   69 6E 64 72 6F
-	   6D 65 0A 0D 35
-	   2E 20 50 72 69
-	   6E 74 20 74 68
-	   65 20 63 75 72
-	   72 65 6E 74 20
-	   73 74 72 69 6E
-	   67 0A 0D 36 2E
-	   20 45 78 69 74
+ 000056CC			.data
+ 000056CC 0A 0D 45 6E 74		menuPrompt BYTE newline, "Enter how many random strings you want to generate (1 to 255),", newline,
+	   65 72 20 68 6F
+	   77 20 6D 61 6E
+	   79 20 72 61 6E
+	   64 6F 6D 20 73
+	   74 72 69 6E 67
+	   73 20 79 6F 75
+	   20 77 61 6E 74
+	   20 74 6F 20 67
+	   65 6E 65 72 61
+	   74 65 20 28 31
+	   20 74 6F 20 32
+	   35 35 29 2C 0A
+	   0D 6F 72 20 65
+	   6E 74 65 72 20
+	   30 30 20 74 6F
+	   20 71 75 69 74
 	   0A 0D 3D 3D 3D
 	   3D 3D 3D 3D 3D
-	   0A 0D 20 50 6C
-	   65 61 73 65 20
-	   73 65 6C 65 63
-	   74 20 61 6E 20
-	   6F 70 74 69 6F
-	   6E 3A 20 00
-				"========", newline,
-				"1. Enter string", newline,
-				"2. Convert string to all lowercase", newline,
-				"3. Remove all non-letter characters", newline,
-				"4. Check if string is a palindrome", newline,
-				"5. Print the current string", newline,
-				"6. Exit", newline,
-				"========", newline,
-				" Please select an option: ", 0h
+	   3D 3D 3D 3D 3D
+	   3D 3D 3D 3D 3D
+	   3D 3D 3D 3D 3D
+	   3D 0A 0D 49 6E
+	   70 75 74 3A 20
+	   00
+									"or enter 00 to quit", newline,
+									"========================", newline,
+									"Input: ",0h
+ 00000059			.code 
+ 00000059  53				push ebx
+ 0000005A				start: 
+ 0000005A  BA 000056CC R			mov edx, offset menuPrompt 
+ 0000005F  E8 00000000 E			call writestring
+ 00000064  E8 00000000 E			call readInt 
+ 00000069  E8 00000007				call processInput
+ 0000006E  80 FB 01				cmp bl, 1 ;indicate error
+ 00000071  74 E7				je start ; restart until valid input 
 
- 000000DB 49 6E 76 61 6C	errorMsg byte "Invalid input. Press [Enter] to try again.", 0h
-	   69 64 20 69 6E
-	   70 75 74 2E 20
-	   50 72 65 73 73
-	   20 5B 45 6E 74
-	   65 72 5D 20 74
-	   6F 20 74 72 79
-	   20 61 67 61 69
-	   6E 2E 00
+ 00000073  5B				pop ebx 
+
+ 00000074  C3				ret  
+ 00000075			UserInput ENDP
+				;#endregion
+
+				;#region processInput
+ 00000075			processInput PROC 
+ 00005745			.data
+ 00005745 0A 0D 45 78 69		quitMsg BYTE newline, "Exiting program...", newline, "Goodbye.", newline, 0h
+	   74 69 6E 67 20
+	   70 72 6F 67 72
+	   61 6D 2E 2E 2E
+	   0A 0D 47 6F 6F
+	   64 62 79 65 2E
+	   0A 0D 00
+ 00005766 45 72 72 6F 72		invalidMsg BYTE "Error. Your input must be between 1 and 255. Try again.",newline,newline, 0h
+	   2E 20 59 6F 75
+	   72 20 69 6E 70
+	   75 74 20 6D 75
+	   73 74 20 62 65
+	   20 62 65 74 77
+	   65 65 6E 20 31
+	   20 61 6E 64 20
+	   32 35 35 2E 20
+	   54 72 79 20 61
+	   67 61 69 6E 2E
+	   0A 0D 0A 0D 00
+ 00000075			.code 
+ 00000075  B3 00			mov bl, 0
+ 00000077  83 F8 00			cmp eax, 0
+ 0000007A  74 17			je quit 
+ 0000007C  72 08			jb error
+ 0000007E  3D 000000FF			cmp eax, 255
+ 00000083  77 01			ja error
+
+ 00000085  C3				ret
+					
+ 00000086				error:
+ 00000086  BA 00005766 R			mov edx, offset invalidMsg
+ 0000008B  E8 00000000 E			call writestring 
+ 00000090  B3 01				mov bl, 1 ; indicate error 
+ 00000092  C3					ret
+
+ 00000093				quit:
+ 00000093  BA 00005745 R		mov edx, offset quitMsg
+ 00000098  E8 00000000 E		call writestring 
+					exit
+ 0000009D  6A 00	   *	    push   +000000000h
+ 0000009F  E8 00000000 E   *	    call   ExitProcess
+ 000000A4			processInput ENDP 
+				;#endregion
+
+				;#region GenerateString
+ 000000A4			GenerateString PROC
+ 000057A2			.data
+ 000057A2 00				numOfStr byte ? ; max of 255 strings 
+
+ 000000A4			.code 
+					
+ 000000A4  A2 000057A2 R		mov numOfStr, al 
+ 000000A9  50				push eax 
+ 000000AA  51				push ecx
+ 000000AB  52				push edx
+ 000000AC  0F B6 0D			movzx ecx, numofStr 
+	   000057A2 R
+
+ 000000B3				genStrLoop:
+ 000000B3  E8 00000024				call howmany ; gets the length of the str, stores it in eax 
+ 000000B8  51					push ecx ; saves outter loop count
+ 000000B9  8B C8				mov ecx, eax 
+ 000000BB  8B D6				mov edx, esi
+ 000000BD					genLenLoop: ;generates a capital letter until it reaches specified length 
+ 000000BD  E8 0000002F					call GenerateCapital ; generates random uppercase letter
+ 000000C2  88 06					mov byte ptr [esi], al ; saves uppercase letter to array of strings, pointed to by esi 
+ 000000C4  46						inc esi
+ 000000C5  E2 F6					loop genLenLoop 
+ 000000C7  E8 00000000 E			call writestring
+ 000000CC  E8 00000000 E			call crlf 
+ 000000D1  C6 06 00				mov byte ptr [esi], 0
+ 000000D4  46					inc esi
+ 000000D5  59					pop ecx ; retrieves outter loop count 
+ 000000D6  E2 DB				loop genStrLoop ; generates more strings until reaches user input (ecx)
+ 000000D8  5A				pop edx 
+ 000000D9  59				pop ecx 
+ 000000DA  58				pop eax 
+ 000000DB  C3				ret 
+ 000000DC			GenerateString ENDP
+				;#endregion 
+
+				;#region HowMany
+				; how long each string is 
+ 000000DC			HowMany PROC 
+ 000057A3			.data
+ 000057A3 00				StringLen byte ?
+ 000000DC			.code 	
+ 000000DC				range:
+ 000000DC  B8 00000023				mov eax, 35
+ 000000E1  E8 00000000 E			call randomRange 
+ 000000E6  83 F8 0A				cmp eax, 10
+ 000000E9  72 F1				jb range 
+
+ 000000EB  A2 000057A3 R		mov stringlen, al
+
+ 000000F0  C3				ret 
+ 000000F1			HowMany ENDP 
+				;#endregion
+
+				;#region GenerateCapital
+ 000000F1			GenerateCapital PROC
+
+ 000057A4			.data 
+
+ 000000F1			.code
+
+ 000000F1  B8 00000019			mov eax, 25 ; since 65 = A and 90 = Z, you could add 65 from 0 to 25 (A to Z, 26 characters) and get the corresponding letter 
+ 000000F6  E8 00000000 E		call randomrange 
+ 000000FB  83 C0 41			add eax, 65 
+
+ 000000FE  C3				ret 
+ 000000FF			GenerateCapital ENDP
+				;#endregion 
+
+				;#region clearStr
+ 000000FF			clearStr PROC 
+
+ 000057A4			.data 
+
+					;for testing purposes 
+					;clearSuccMsg byte "String array cleared.", newline, 0h 
+
+ 000000FF			.code 
+						
+ 000000FF				clearingLoop:
+ 000000FF  C6 06 00			mov byte ptr [esi], 0 ; clears current element 
+ 00000102  46				inc esi ; move to next element 
+ 00000103  E2 FA			loop clearingLoop
 
 
- 00000011			.code
- 00000011  BA 00000000 R	mov edx, offset menuPrompt 
- 00000016  E8 00000000 E	call writestring 
- 0000001B  E8 00000000 E	call readDec
- 00000020  E8 00000000 E	call waitmsg
-
- 00000025  C3			ret
-
- 00000026			menuScreen ENDP
-
-				; //////////////////// MENU PROCEDURE END ///////////////////
+					;mov edx, offset clearSuccMsg
+					;call writeString 
+ 00000105  C3				ret 
+ 00000106			clearStr ENDP
+				;#endregion
 
 
+				;#region printStr
+ 00000106			printStr PROC
+ 000057A4			.data
 
-				end main
-				; //////////////////// main PROCEDURE END ///////////////////
-Microsoft (R) Macro Assembler Version 14.39.33521.0	    03/25/24 17:22:41
-..\Programs\PA5_Nghi_Vu.asm				     Symbols 2 - 1
+ 00000106			.code 
+ 00000106  52				push edx
+ 00000107  51				push ecx 
+
+ 00000108  8B D6			mov edx, esi
+ 0000010A  8B C8			mov ecx, eax 
+ 0000010C				printloop: ;eax times 
+ 0000010C  E8 00000000 E			call writestring 
+ 00000111  E8 00000000 E			call crlf 
+ 00000116  83 C2 23				add edx, 35
+ 00000119  E2 F1				loop printloop
+
+ 0000011B  59				pop ecx 
+ 0000011C  5A				pop edx 
+
+ 0000011D  C3					ret 
+ 0000011E			printStr ENDP
+				;#endregion 
+
+
+				END main
+Microsoft (R) Macro Assembler Version 14.39.33521.0	    03/29/24 23:00:21
+PA4_Nghi_Vu.as						     Symbols 2 - 1
 
 
 
@@ -236,8 +383,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000106 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000026 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000057A4 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000011E Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -258,6 +405,10 @@ FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GenerateCapital  . . . . . . . .	P Near	 000000F1 _TEXT	Length= 0000000E Public STDCALL
+GenerateString . . . . . . . . .	P Near	 000000A4 _TEXT	Length= 00000038 Public STDCALL
+  genStrLoop . . . . . . . . . .	L Near	 000000B3 _TEXT	
+  genLenLoop . . . . . . . . . .	L Near	 000000BD _TEXT	
 GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -283,6 +434,8 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HowMany  . . . . . . . . . . . .	P Near	 000000DC _TEXT	Length= 00000015 Public STDCALL
+  range  . . . . . . . . . . . .	L Near	 000000DC _TEXT	
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -326,6 +479,8 @@ Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+UserInput  . . . . . . . . . . .	P Near	 00000059 _TEXT	Length= 0000001C Public STDCALL
+  start  . . . . . . . . . . . .	L Near	 0000005A _TEXT	
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -344,10 +499,17 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000011 Public STDCALL
-  starthere  . . . . . . . . . .	L Near	 00000000 _TEXT	
-menuScreen . . . . . . . . . . .	P Near	 00000011 _TEXT	Length= 00000015 Public STDCALL
+clearStr . . . . . . . . . . . .	P Near	 000000FF _TEXT	Length= 00000007 Public STDCALL
+  clearingLoop . . . . . . . . .	L Near	 000000FF _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000059 Public STDCALL
+  start  . . . . . . . . . . . .	L Near	 00000005 _TEXT	
+nline  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+printStr . . . . . . . . . . . .	P Near	 00000106 _TEXT	Length= 00000018 Public STDCALL
+  printloop  . . . . . . . . . .	L Near	 0000010C _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+processInput . . . . . . . . . .	P Near	 00000075 _TEXT	Length= 0000002F Public STDCALL
+  error  . . . . . . . . . . . .	L Near	 00000086 _TEXT	
+  quit . . . . . . . . . . . . .	L Near	 00000093 _TEXT	
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
@@ -481,6 +643,7 @@ STD_ERROR_HANDLE . . . . . . . .	Number	 -0000000Ch
 STD_INPUT_HANDLE . . . . . . . .	Number	 -0000000Ah   
 STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh   
 SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
+StringLen  . . . . . . . . . . .	Byte	 000057A3 _DATA	
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
@@ -569,10 +732,10 @@ black  . . . . . . . . . . . . .	Number	 00000000h
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-errorMsg . . . . . . . . . . . .	Byte	 000000DB _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
+invalidMsg . . . . . . . . . . .	Byte	 00005766 _DATA	
 jump . . . . . . . . . . . . . .	Text   	 jmp
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
@@ -580,10 +743,13 @@ lightGray  . . . . . . . . . . .	Number	 00000007h
 lightGreen . . . . . . . . . . .	Number	 0000000Ah   
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
+listOfStr  . . . . . . . . . . .	DWord	 00000000 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-menuPrompt . . . . . . . . . . .	Byte	 00000000 _DATA	
+menuPrompt . . . . . . . . . . .	Byte	 000056CC _DATA	
 move . . . . . . . . . . . . . .	Text   	 mov
 newline  . . . . . . . . . . . .	Text   	 0Ah, 0Dh
+numOfStr . . . . . . . . . . . .	Byte	 000057A2 _DATA	
+quitMsg  . . . . . . . . . . . .	Byte	 00005745 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
